@@ -1,11 +1,20 @@
 // GET /api/summary?session_id=xxx — 绩效摘要快照
-import { query, queryOne } from "../../src/lib/db";
+import { getRequestConnectionString, query } from "../../src/lib/db";
 import { getSummaryQuery, getEquityCurveQuery } from "../../src/lib/queries";
+
+interface SummaryRow {
+  total_trades: number;
+  buy_count: number;
+  sell_count: number;
+  total_amount: number;
+  total_commission: number;
+}
 
 export async function GET(request: Request): Promise<Response> {
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("session_id");
+    const connectionString = getRequestConnectionString(request);
 
     if (!sessionId) {
       return Response.json({ error: "session_id is required" }, { status: 400 });
@@ -13,12 +22,12 @@ export async function GET(request: Request): Promise<Response> {
 
     // 获取交易摘要
     const { text, values } = getSummaryQuery(sessionId);
-    const summaryRows = await query(text, values);
+    const summaryRows = await query<SummaryRow>(text, values, connectionString);
     const summary = summaryRows[0] || {};
 
     // 获取净值曲线用于计算指标
     const equity = getEquityCurveQuery(sessionId);
-    const equityRows = await query(equity.text, equity.values);
+    const equityRows = await query(equity.text, equity.values, connectionString);
 
     // 客户端计算 drawdown / sharpe / calmar
     let maxDrawdown: number | null = null;

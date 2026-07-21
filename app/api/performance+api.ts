@@ -1,5 +1,5 @@
 // GET /api/performance?session_id=xxx — 净值曲线 + 回撤数据
-import { query } from "../../src/lib/db";
+import { getRequestConnectionString, query } from "../../src/lib/db";
 import { getEquityCurveQuery } from "../../src/lib/queries";
 
 interface PerformanceRow {
@@ -23,7 +23,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const { text, values } = getEquityCurveQuery(sessionId);
-    const rows = await query<PerformanceRow>(text, values);
+    const rows = await query<PerformanceRow>(text, values, getRequestConnectionString(request));
 
     // 计算回撤 (drawdown)
     let peak = 0;

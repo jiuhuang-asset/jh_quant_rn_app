@@ -4,9 +4,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { PerformancePoint } from "../lib/types";
+import { apiFetch } from "../lib/apiClient";
 
 export async function fetchPerformance(sessionId: string): Promise<PerformancePoint[]> {
-  const res = await fetch(`/api/performance?session_id=${encodeURIComponent(sessionId)}`);
+  const res = await apiFetch(`/api/performance?session_id=${encodeURIComponent(sessionId)}`);
   if (!res.ok) throw new Error("Failed to fetch performance");
   return res.json();
 }

@@ -1,5 +1,5 @@
 // GET /api/trades?session_id=xxx&limit=20&offset=0&symbol=&trade_type= — 交易记录
-import { query, queryOne } from "../../src/lib/db";
+import { getRequestConnectionString, query, queryOne } from "../../src/lib/db";
 import { getTradesQuery, getTradesCountQuery } from "../../src/lib/queries";
 import type { TradeRecord } from "../../src/lib/types";
 
@@ -7,6 +7,7 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("session_id");
+    const connectionString = getRequestConnectionString(request);
 
     if (!sessionId) {
       return Response.json({ error: "session_id is required" }, { status: 400 });
@@ -24,8 +25,8 @@ export async function GET(request: Request): Promise<Response> {
     ];
 
     const [trades, countResult] = await Promise.all([
-      query<TradeRecord>(tradesQuery.text, tradesQuery.values),
-      queryOne<{ count: string }>(countQuery.text, countQuery.values),
+      query<TradeRecord>(tradesQuery.text, tradesQuery.values, connectionString),
+      queryOne<{ count: string }>(countQuery.text, countQuery.values, connectionString),
     ]);
 
     const total = countResult ? parseInt(countResult.count, 10) : 0;

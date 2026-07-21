@@ -1,5 +1,5 @@
 // GET /api/sessions — 投资组合列表
-import { query } from "../../src/lib/db";
+import { getRequestConnectionString, query } from "../../src/lib/db";
 import { getSessionsQuery } from "../../src/lib/queries";
 
 interface SessionRow {
@@ -30,10 +30,10 @@ function extractStrategyNames(specsJson: unknown): string[] {
     .filter(Boolean);
 }
 
-export async function GET(): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
   try {
     const { text, values } = getSessionsQuery();
-    const rows = await query<SessionRow>(text, values);
+    const rows = await query<SessionRow>(text, values, getRequestConnectionString(request));
 
     // Post-process: extract strategy names, compute running status
     const sessions = rows.map((row) => ({

@@ -4,9 +4,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { PerformanceSummary } from "../lib/types";
+import { apiFetch } from "../lib/apiClient";
 
 export async function fetchSummary(sessionId: string): Promise<PerformanceSummary> {
-  const res = await fetch(`/api/summary?session_id=${encodeURIComponent(sessionId)}`);
+  const res = await apiFetch(`/api/summary?session_id=${encodeURIComponent(sessionId)}`);
   if (!res.ok) throw new Error("Failed to fetch summary");
   return res.json();
 }

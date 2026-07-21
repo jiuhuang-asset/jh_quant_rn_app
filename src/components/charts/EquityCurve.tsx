@@ -9,6 +9,7 @@ import { LineChart, BarChart } from "react-native-gifted-charts";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, radius, typography, shadow } from "../../theme/theme";
 import type { PerformancePoint } from "../../lib/types";
+import { formatDate } from "../../utils/format";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const CHART_PADDING = spacing[4] * 2;
@@ -51,7 +52,8 @@ export function EquityCurve({
 
     const lineData = data.map((d, i) => ({
       value: d.portfolio_value,
-      label: i % Math.ceil(data.length / 6) === 0 ? d.trade_date.slice(5, 10) : "",
+      // PostgreSQL 返回 UTC ISO 时间；不能直接截取字符串，否则北京时间会少一天。
+      label: i % Math.ceil(data.length / 6) === 0 ? formatDate(d.trade_date) : "",
       dataPointText: "",
     }));
 
@@ -133,8 +135,10 @@ export function EquityCurve({
           height={height * 0.6}
           areaChart
           curved
-          isAnimated
-          animationDuration={800}
+          // 数据点很多时每个点的间距只有数像素。图表库会把标签容器也设成
+          // 这个宽度，导致日期被截断成“0..”。仅展示采样标签并给其预留宽度。
+          isAnimated={false}
+          labelsExtraHeight={44}
           color={colors.primary[500]}
           startFillColor={colors.primary[200]}
           startOpacity={0.3}

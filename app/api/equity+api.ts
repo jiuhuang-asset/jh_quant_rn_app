@@ -1,5 +1,5 @@
 // GET /api/equity?session_id=xxx — 净值 + 回撤精简数据 (用于 sparkline)
-import { query } from "../../src/lib/db";
+import { getRequestConnectionString, query } from "../../src/lib/db";
 import { getEquityCurveQuery } from "../../src/lib/queries";
 
 interface EquityRow {
@@ -18,7 +18,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const { text, values } = getEquityCurveQuery(sessionId);
-    const rows = await query<EquityRow>(text, values);
+    const rows = await query<EquityRow>(text, values, getRequestConnectionString(request));
 
     // 精简字段 + 计算回撤
     let peak = 0;

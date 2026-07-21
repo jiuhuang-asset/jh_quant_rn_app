@@ -1,5 +1,5 @@
 // GET /api/trade-activity?session_id=xxx — 每日交易活跃度
-import { query } from "../../src/lib/db";
+import { getRequestConnectionString, query } from "../../src/lib/db";
 import { getTradeActivityQuery } from "../../src/lib/queries";
 import type { TradeActivityPoint } from "../../src/lib/types";
 
@@ -13,7 +13,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const { text, values } = getTradeActivityQuery(sessionId);
-    const rows = await query<TradeActivityPoint>(text, values);
+    const rows = await query<TradeActivityPoint>(text, values, getRequestConnectionString(request));
 
     return Response.json(rows);
   } catch (error) {

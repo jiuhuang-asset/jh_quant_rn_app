@@ -4,6 +4,7 @@
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { TradesResponse } from "../lib/types";
+import { apiFetch } from "../lib/apiClient";
 
 interface TradeFilters {
   symbol?: string;
@@ -24,7 +25,7 @@ export async function fetchTrades(
   if (filters.symbol) params.set("symbol", filters.symbol);
   if (filters.tradeType) params.set("trade_type", filters.tradeType);
 
-  const res = await fetch(`/api/trades?${params}`);
+  const res = await apiFetch(`/api/trades?${params}`);
   if (!res.ok) throw new Error("Failed to fetch trades");
   return res.json();
 }

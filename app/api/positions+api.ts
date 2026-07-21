@@ -1,5 +1,5 @@
 // GET /api/positions?session_id=xxx — 最新持仓快照 + 权重计算
-import { query } from "../../src/lib/db";
+import { getRequestConnectionString, query } from "../../src/lib/db";
 import { getPositionsQuery } from "../../src/lib/queries";
 
 interface PositionRow {
@@ -22,7 +22,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const { text, values } = getPositionsQuery(sessionId);
-    const rows = await query<PositionRow>(text, values);
+    const rows = await query<PositionRow>(text, values, getRequestConnectionString(request));
 
     // 计算组合汇总
     const totalMarketValue = rows.reduce((sum, r) => sum + r.market_value, 0);
